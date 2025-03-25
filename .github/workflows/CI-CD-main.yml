@@ -12,6 +12,9 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v3
 
+    - name: Set tag from short SHA
+      run: echo "TAG=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
     - name: Log in to Docker Hub
       uses: docker/login-action@v3
       with:
@@ -19,14 +22,14 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
 
     - name: Build Docker image with tags
-        run: |
-          docker build -t jmaepraendith/472-s-golden-pillow-backend-6510451042:latest \
-                 -t jmaepraendith/472-s-golden-pillow-backend-6510451042:${{ env.TAG }} .
+      run: |
+        docker build -t jmaepraendith/472-s-golden-pillow-backend-6510451042:latest \ 
+              -t jmaepraendith/472-s-golden-pillow-backend-6510451042:${{ env.TAG }} .
 
     - name: Push Docker images
-        run: |
-          docker push jmaepraendith/472-s-golden-pillow-backend-6510451042:latest
-          docker push jmaepraendith/472-s-golden-pillow-backend-6510451042:${{ env.TAG }}
+      run: |
+        docker push jmaepraendith/472-s-golden-pillow-backend-6510451042:latest
+        docker push jmaepraendith/472-s-golden-pillow-backend-6510451042:${{ env.TAG }}
 
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v1
@@ -35,6 +38,3 @@ jobs:
         name: Release ${{ env.TAG }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-
-
