@@ -117,7 +117,7 @@ app.post('/orders/updatePaymentStatus', orderController.updatePaymentStatus);
 app.post('/orders/updatedeliveryStatus', orderController.updatedeliveryStatus);
 app.post('/orders/updateStatusLedger', orderController.updateStatusLedger);
 app.post('/orders/updatePackedStatus', orderController.updatePackedStatus);
-app.post('/orders/createreceipt', orderController.createreceipt);
+// app.post('/orders/createreceipt', orderController.createreceipt);
 app.get('/sales-summary/:month', productController.getMonthlySalesSummary);
 app.get('/income-summary', productController.getIncomeSummary);
 app.get('/coupon', couponController.getAllCoupons);
