@@ -7,7 +7,7 @@ services:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: golden_pillow
     ports:
-      - "3306:3306"
+      - "13306:3306"
     networks:
       - app-network
     volumes:
@@ -29,15 +29,12 @@ services:
       PMA_PORT: 3306
       MYSQL_ROOT_PASSWORD: root
     ports:
-      - "8080:80"
+      - "10080:80"
     networks:
       - app-network
 
   backend:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: 472-s-golden-pillow-backend-6510451042
+    image: jmaepraendith/472-s-golden-pillow-backend-6510451042:latest
     container_name: goldenpillow-backend
     restart: always
     ports:
@@ -46,8 +43,15 @@ services:
       - app-network
     depends_on:
       - mysql
-    env_file:
-      - .env
+
+  frontend:
+      image: jmaepraendith/472-s-golden-pillow-frontend-6510451042:latest
+      container_name: goldenpillow-frontend
+      restart: always
+      ports:
+        - "13000:3000"
+      networks:
+        - app-network
 
 volumes:
   mysql_data: 
