@@ -22,6 +22,12 @@ jobs:
     - name: Install dependencies
       run: npm install
 
+    - name: Create .env.ci from GitHub Secrets
+      run: |
+        echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env.ci
+        echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env.ci
+
+
     - name: Set up Docker Compose
       run: |
         docker compose -f docker-compose.yml --env-file .env.ci up -d
