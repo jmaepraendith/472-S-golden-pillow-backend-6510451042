@@ -24,20 +24,22 @@ jobs:
 
     - name: Set up Docker Compose
       run: |
-        docker-compose -f docker-compose.yml --env-file .env.ci up -d
-        echo "⏳ Waiting for containers to be healthy..."
-        docker ps
-        sleep 30  
+        docker compose -f docker-compose.yml --env-file .env.ci up -d
+        sleep 30
 
-    - name: Run tests in backend container
+    - name: Wait for MySQL to be ready
+      run: |
+        for i in {1..30}; do
+          docker exec mysql-database mysqladmin ping -h localhost --silent && break
+          echo "Waiting for MySQL..."
+          sleep 2
+        done
+
+    - name: Run backend tests
       run: docker exec goldenpillow-backend npm test
 
-    - name: Show logs (on fail)
-      if: failure()
-      run: docker-compose logs
-
     - name: Tear down
-      run: docker-compose -f docker-compose.yml --env-file .env.ci down
+      run: docker compose -f docker-compose.yml --env-file .env.ci down
 
     - name: Build Docker image
       run: docker build -t goldenpillow-dev .
