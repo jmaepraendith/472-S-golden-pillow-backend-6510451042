@@ -20,5 +20,5 @@ const Cart = sequelize.define(
   }
 );
 
-Cart.belongsTo(User, { foreignKey: 'user_id' });
+
 module.exports = Cart;

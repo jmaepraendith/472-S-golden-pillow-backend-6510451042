@@ -31,8 +31,5 @@ const CartItem = sequelize.define('cartitem', {
   timestamps: false, 
 });
 
-CartItem.belongsTo(Cart, { foreignKey: 'cart_id'});
-CartItem.belongsTo(Product, { foreignKey: 'lot_id' });
-CartItem.belongsTo(Product, { foreignKey: 'grade' });
 
 module.exports = CartItem;

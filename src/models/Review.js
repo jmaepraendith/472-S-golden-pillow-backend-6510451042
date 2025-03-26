@@ -51,9 +51,5 @@ const Review = sequelize.define('reviews', {
   
 });
 
-// Relationships
-Review.belongsTo(Order, { foreignKey: 'order_id' });
-Review.belongsTo(Product, { foreignKey: 'lot_id' });
-Review.belongsTo(Product, { foreignKey: 'grade' });
 
 module.exports = Review;

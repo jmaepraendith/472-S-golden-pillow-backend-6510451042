@@ -14,7 +14,7 @@ const Order = sequelize.define('orders', {
 
   },
   total_price: {
-    type: DataTypes.FLOAT(10, 2),
+    type: DataTypes.DECIMAL(10, 2),
     allowNull: false,
   },
   payment_status: {
