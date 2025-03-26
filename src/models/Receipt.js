@@ -7,15 +7,12 @@ const Receipt = sequelize.define('receipt', {
   order_id: { type: DataTypes.INTEGER, allowNull: false },
   receipt_date: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
   Receipt_path: {
-    type: DataTypes.STRING(255),
-    allowNull: false,
-    // validate: {
-    //   is: /\.(jpg|png)$/i, // Ensure image path ends with .jpg or .png
-    // },
+    type: DataTypes.STRING(500),
+    allowNull: true,
   },
 }, {
-  tableName: 'receipt', // Add this line to make sure Sequelize uses the correct table name
-  timestamps: false // Disable automatic `createdAt` and `updatedAt` fields
+  tableName: 'receipt', 
+  timestamps: false 
 });
 
 module.exports = Receipt;

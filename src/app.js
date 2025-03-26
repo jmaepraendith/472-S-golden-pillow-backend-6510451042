@@ -38,7 +38,7 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 
 const sequelize = require('./config/database');
-
+const seedData = require('./seed');
 
 require('./models/associations');
 require('app-module-path').addPath(__dirname);
@@ -160,10 +160,36 @@ app.use((err, req, res, next) => {
 
 
 const PORT = process.env.PORT || 13889;
-sequelize.sync().then(() => {
-  server.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-  });
-}).catch((error) => {
-  console.error('Failed to sync database:', error);
-});
+// sequelize.sync().then(() => {
+//   server.listen(PORT, () => {
+//     console.log(`Server is running on port ${PORT}`);
+//   });
+// }).catch((error) => {
+//   console.error('Failed to sync database:', error);
+// });
+(async () => {
+  try {
+    await sequelize.authenticate();
+    console.log('Connected to the database');
+
+    // สร้างตารางก่อน เพื่อให้ query count ได้
+    await sequelize.sync();
+    console.log('Tables synced');
+
+    const userCount = await require('./models/User').count();
+
+    if (userCount === 0) {
+      console.log('No users found, reseeding...');
+      await sequelize.sync({ force: true }); // รีเซ็ตตาราง
+      await seedData(); // seed ใหม่
+      console.log('Database seeded');
+    }
+
+    server.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+
+  } catch (error) {
+    console.error('Error initializing app:', error);
+  }
+})();

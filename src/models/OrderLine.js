@@ -34,8 +34,6 @@ const OrderLine = sequelize.define('orderline', {
   tableName: 'orderline', 
   timestamps: false,
 });
-OrderLine.belongsTo(Order, { foreignKey: 'order_id'});
-OrderLine.belongsTo(Product, { foreignKey: 'lot_id' });
-OrderLine.belongsTo(Product, { foreignKey: 'grade' });
+
 
 module.exports = OrderLine;
