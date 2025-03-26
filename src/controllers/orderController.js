@@ -169,15 +169,28 @@ exports.getOrderDetails = async (req, res) => {
         {
           model: User,
           as: 'user',
-          attributes: ['username'], // Only include the user's username
+          attributes: ['username']
         },
         {
           model: OrderLine,
           as: 'orderLines',
-          attributes: ['lot_id', 'grade', 'amount'], // Only include these attributes
-        },
-      ],
+          attributes: ['lot_id', 'grade', 'amount'],
+          include: [
+            {
+              model: Product,
+              as: 'lot',
+              attributes: ['image_path', 'sale_price', 'status']
+            },
+            {
+              model: Product,
+              as: 'gradeInfo',
+              attributes: []
+            }
+          ]
+        }
+      ]
     });
+    
 
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
@@ -198,7 +211,7 @@ exports.getOrderDetails = async (req, res) => {
         lotId: line.lot_id,
         grade: line.grade,
         amount: line.amount,
-        //image_path: Product.lot_id.grade.image_path
+        
       })),
     };
 
@@ -318,7 +331,10 @@ exports.updatePaymentStatus = async (req, res) => {
         {
           model: OrderLine,
           as: 'orderLines',
-          include: [{ model: Product, as: 'product' }]
+          include: [
+            { model: Product, as: 'lot' },
+            { model: Product, as: 'gradeInfo' }
+          ]
         }
       ]
     });
@@ -329,18 +345,18 @@ exports.updatePaymentStatus = async (req, res) => {
     }
 
     if (payment_status === 'Approved') {
-      // Update each product's LotamountStock and status based on order lines
+      
       for (const line of order.orderLines) {
-        const product = line.product;
-    
+        const product = line.lot;
+      
         if (!product) {
           console.warn(`⚠️ Product not found for order line: lot_id=${line.lot_id}, grade=${line.grade}`);
           continue;
         }
-    
+      
         const newLotamountStock = product.LotamountStock - line.amount;
         let updatedStatus = newLotamountStock <= 0 ? 'Out of Stock' : 'Available';
-    
+      
         await Product.update(
           {
             LotamountStock: Math.max(newLotamountStock, 0),
@@ -349,15 +365,16 @@ exports.updatePaymentStatus = async (req, res) => {
           {
             where: {
               lot_id: product.lot_id,
-              grade: product.grade, // เพิ่ม grade ถ้าคุณใช้ composite key
+              grade: product.grade,
             }
           }
         );
       }
+      
     } else if (payment_status === 'Rejected') {
       // Revert stock for each product in the order lines
       for (const line of order.orderLines) {
-        const product = line.product;
+        const product = line.lot;
     
         if (!product) {
           console.warn(`⚠️ Product not found for order line: lot_id=${line.lot_id}, grade=${line.grade}`);
