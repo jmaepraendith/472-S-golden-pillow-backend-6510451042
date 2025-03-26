@@ -70,8 +70,6 @@ const seedData = async () => {
     { order_id: 53, user_id: 1, total_price: 600, delivery_status: 'yet to send', payment_status: 'Yet to check', status_for_ledger: 'not done', packed_status: 'not packed yet', slip_payment: '/images/image-1740401736684-321099819.jpg', order_date: new Date('2025-02-24 12:55:32') },
     { order_id: 54, user_id: 1, total_price: 3300, delivery_status: 'sent the packet', payment_status: 'Approved', status_for_ledger: 'not done', packed_status: 'packed', slip_payment: '/images/image-1740407900475-629183215.jpg', order_date: new Date('2025-02-24 15:08:16') },
     { order_id: 999, user_id: 1, total_price: 12700, delivery_status: 'sent the packet', payment_status: 'Approved', status_for_ledger: 'not done', packed_status: 'packed', slip_payment: 'no path', order_date: new Date('2025-03-10 12:37:39') },
-    { order_id: 1272, user_id: 8, total_price: 2400, delivery_status: 'yet to send', payment_status: 'Yet to check', status_for_ledger: 'not done', packed_status: 'not packed yet', slip_payment: '/images/image-1742827305066-354029317.png', order_date: new Date('2025-03-24 14:41:24') },
-    { order_id: 1273, user_id: 8, total_price: 2450, delivery_status: 'yet to send', payment_status: 'Yet to check', status_for_ledger: 'not done', packed_status: 'not packed yet', slip_payment: '/images/image-1742827609122-197165908.png', order_date: new Date('2025-03-24 14:46:35') },
   ]);
 
   
