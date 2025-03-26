@@ -180,21 +180,25 @@ exports.deleteProductsByCartId = async (req, res) => {
     // ✅ 1. ดึงรายการสินค้าในตะกร้าพร้อมข้อมูลสินค้า
     const cartItems = await CartItem.findAll({
       where: { cart_id: cartId },
-      include: [{ model: Product, as: 'product' }]
+      include: [
+        { model: Product, as: 'lot' },
+        { model: Product, as: 'gradeInfo' }
+      ]
+      
     });
 
     // ✅ 2. อัปเดต stock ของสินค้าแต่ละตัว
     for (const item of cartItems) {
-      const product = item.product;
-
+      const product = item.lot; 
+    
       if (!product) {
         console.warn(`Product not found for cart item: lot_id=${item.lot_id}, grade=${item.grade}`);
         continue;
       }
-
+    
       const newRemainLotamount = product.RemainLotamount - item.amount;
       let updatedStatus = newRemainLotamount <= 0 ? 'Out of Stock' : 'Available';
-
+    
       await Product.update(
         {
           RemainLotamount: Math.max(newRemainLotamount, 0),
