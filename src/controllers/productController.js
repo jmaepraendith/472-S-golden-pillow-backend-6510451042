@@ -7,7 +7,7 @@ const moment = require('moment');
 
 exports.getIncomeSummary = async (req, res) => {
   try {
-    const year = 2024; // You can make this dynamic based on your needs.
+    const year = 2025;
     const incomeSummary = [];
 
     const monthNames = [
@@ -18,17 +18,22 @@ exports.getIncomeSummary = async (req, res) => {
     for (let month = 0; month < 12; month++) {
       const startDate = new Date(year, month, 1);
       const endDate = new Date(year, month + 1, 0);
-      
-      // Fetch total income for the month
-      const income = await Order.sum('total_price', {
+
+      const orders = await Order.findAll({
         where: {
           order_date: {
             [Op.between]: [startDate, endDate]
           }
-        }
-      }) || 0;
+        },
+        attributes: ['total_price']
+      });
 
-      incomeSummary.push({ month: monthNames[month], totalIncome: income });
+      const totalIncome = orders.reduce((sum, order) => sum + parseFloat(order.total_price), 0);
+
+      incomeSummary.push({
+        month: monthNames[month],
+        totalIncome: totalIncome
+      });
     }
 
     res.status(200).json(incomeSummary);
@@ -40,9 +45,10 @@ exports.getIncomeSummary = async (req, res) => {
 
 
 
+
 exports.getMonthlySalesSummary = async (req, res) => {
   try {
-    const { month } = req.params; // Expected to be in 'YYYY-MM' format
+    const { month } = req.params; 
     const startDate = moment(month, 'YYYY-MM').startOf('month').format('YYYY-MM-DD');
     const endDate = moment(month, 'YYYY-MM').endOf('month').format('YYYY-MM-DD');
 
@@ -56,12 +62,17 @@ exports.getMonthlySalesSummary = async (req, res) => {
       include: [
         {
           model: OrderLine,
-          as: 'orderLines', // Ensure this matches the alias in the association
+          as: 'orderLines', 
           include: [
             {
               model: Product,
-              as: 'product', // Ensure this matches the alias in the association
-              attributes: ['lot_id', 'grade', 'base_price', 'sale_price'],
+              as: 'lot',
+              attributes: ['lot_id', 'base_price', 'sale_price'], 
+            },
+            {
+              model: Product,
+              as: 'gradeInfo',
+              attributes: ['grade'], 
             }
           ],
         }
@@ -73,15 +84,16 @@ exports.getMonthlySalesSummary = async (req, res) => {
     // Iterate through orders and calculate product sales
     orders.forEach(order => {
       order.orderLines.forEach(orderLine => {
-        const product = orderLine.product;
-        if (product) {
-          // Use `lot_id` and `grade` concatenated as the product name
-          const productKey = `${product.lot_id} - Grade: ${product.grade}`;
+        const lot = orderLine.lot;
+        const gradeInfo = orderLine.gradeInfo;
+
+        if (lot && gradeInfo) {
+          const productKey = `${lot.lot_id} - Grade: ${gradeInfo.grade}`;
           
           if (!salesSummary[productKey]) {
             salesSummary[productKey] = {
-              lot_id: product.lot_id,
-              grade: product.grade,
+              lot_id: lot.lot_id,
+              grade: gradeInfo.grade,
               totalQuantity: 0,
               totalRevenue: 0,
               totalCost: 0,
@@ -89,9 +101,9 @@ exports.getMonthlySalesSummary = async (req, res) => {
             };
           }
 
-          const quantity = orderLine.amount; // Assuming `amount` is the quantity field
-          const revenue = product.sale_price * quantity;
-          const cost = product.base_price * quantity;
+          const quantity = orderLine.amount;
+          const revenue = lot.sale_price * quantity;
+          const cost = lot.base_price * quantity;
           const profit = revenue - cost;
 
           salesSummary[productKey].totalQuantity += quantity;
@@ -99,6 +111,7 @@ exports.getMonthlySalesSummary = async (req, res) => {
           salesSummary[productKey].totalCost += cost;
           salesSummary[productKey].totalProfit += profit;
         }
+
       });
     });
 
